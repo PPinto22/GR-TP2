@@ -13,7 +13,7 @@ import java.net.UnknownHostException;
  */
 public class Monitor {
 
-  SnmpConnector con;
+  private SnmpConnector con;
 
   public Monitor(){
     this.con = null;
