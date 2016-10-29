@@ -1,3 +1,4 @@
+import Business.Interfaces;
 import Business.Monitor;
 import Business.Objects;
 import Business.SnmpConnector;
@@ -12,10 +13,10 @@ import java.sql.Time;
 public class Teste1 {
 
   public static void main(String[] args) throws Exception {
-/*    Monitor m = new Monitor();
-    m.connect("localhost",5555);*/
-    SnmpConnector con = new SnmpConnector("localhost",5555);
-    System.out.println(con.parseTime(con.get(Objects.SYSUPTIME)).toString());
+    Monitor m = new Monitor();
+    m.connect("localhost",5555);
+    Interfaces interfaces = m.getInterfaces();
+    System.out.println(interfaces.toString());
 
   }
 }

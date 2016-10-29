@@ -13,9 +13,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Time;
-import java.util.List;
+import java.util.ArrayList;
 
-/**
+/**con
  * Created by pedro on 26-10-2016.
  */
 public class SnmpConnector {
@@ -23,7 +23,7 @@ public class SnmpConnector {
 
   private CommunityTarget com;
   private long timeout = 3000;
-  private int retries = 0;
+  private int retries = 3;
   private int version = SnmpConstants.version2c;
   private int requestID = 0;
 
@@ -37,20 +37,8 @@ public class SnmpConnector {
     return new Snmp(transport);
   }
 
-  public PDU newPDU(List<String> OIDs, int tipo){
-    PDU newpdu = new PDU();
-    newpdu.add(new VariableBinding(new OID(Objects.SYSUPTIME))); //add systime to pdu
-    for(String OID : OIDs){
-      newpdu.add(new VariableBinding(new OID(OID)));
-    }
-    newpdu.setType(tipo);
-    newpdu.setRequestID(new Integer32(this.requestID++));
-    return newpdu;
-  }
-
-  public PDU newPDU(String oid){
+  public PDU newPDU(){
     PDU pdu = new PDU();
-    pdu.add(new VariableBinding(new OID(oid)));
     pdu.setRequestID(new Integer32(this.requestID++));
     return pdu;
   }
@@ -73,26 +61,77 @@ public class SnmpConnector {
 
   public Variable get(String oid) throws IOException {
     Snmp snmp = newSNMP();
-    ResponseEvent re = snmp.get(newPDU(oid),this.com);
+    PDU p = newPDU();
+    p.add(new VariableBinding(new OID(oid)));
+    ResponseEvent re = snmp.get(p,this.com);
 
     if (re==null){
       throw new IOException("Sem resposta (1)");
     }
 
-    PDU rpdu = re.getResponse();
+    PDU rp = re.getResponse();
 
-    if (rpdu==null) {
+    if (rp==null) {
       throw new IOException("Sem resposta (2)");
     }
 
-    if(rpdu.getErrorStatus() == PDU.noError){
-      return rpdu.getVariable(new OID(oid));
+    if(rp.getErrorStatus() == PDU.noError){
+      return rp.getVariable(new OID(oid));
     }
     else{
       throw new IOException("Resposta com erros");
     }
-
   }
 
+  public Interfaces getInterfaces() throws IOException {
+    Snmp snmp = newSNMP();
+    PDU p = newPDU();
+    p.setType(PDU.GETBULK);
+    p.add(new VariableBinding(new OID(Objects.SYSUPTIME)));
+    p.add(new VariableBinding(new OID(Objects.IFNUMBER)));
+    p.add(new VariableBinding(new OID(Objects.IFDESCR)));
+    p.add(new VariableBinding(new OID(Objects.IFOPERSTATUS)));
+    p.add(new VariableBinding(new OID(Objects.IFADMINSTATUS)));
+    p.add(new VariableBinding(new OID(Objects.IFINOCTETS)));
+    p.add(new VariableBinding(new OID(Objects.IFOUTOCTETS)));
+    p.setNonRepeaters(2);
+    p.setMaxRepetitions(15);
+
+    ResponseEvent re = snmp.getBulk(p,com);
+
+    if (re==null){
+      throw new IOException("Sem resposta (1)");
+    }
+
+    PDU rp = re.getResponse();
+
+    if (rp==null) {
+      throw new IOException("Sem resposta (2)");
+    }
+
+    if(rp.getErrorStatus() == PDU.noError){
+      Time t = parseTime(rp.getVariable(new OID(Objects.SYSUPTIME + ".0")));
+      int number = rp.getVariable(new OID(Objects.IFNUMBER + ".0")).toInt();
+      ArrayList<Interface> interfaces = new ArrayList<Interface>(number);
+      for(int i = 1; i <= number; i++){
+        boolean operStatus = rp.getVariable(new OID(Objects.IFOPERSTATUS + "." + i)).toInt() == 1;
+        boolean adminStatus = rp.getVariable(new OID(Objects.IFADMINSTATUS + "." + i)).toInt() == 1;
+        boolean up = operStatus && adminStatus;
+        if(up){
+          int index = i;
+          String desc = rp.getVariable(new OID(Objects.IFDESCR + "." + i)).toString();
+          int inOct = rp.getVariable(new OID(Objects.IFINOCTETS + "." + i)).toInt();
+          int outOct = rp.getVariable(new OID(Objects.IFOUTOCTETS + "." + i)).toInt();
+
+          Interface iface = new Interface(index,desc,inOct,outOct);
+          interfaces.add(iface);
+        }
+      }
+      return new Interfaces(t,interfaces);
+    }
+    else{
+      throw new IOException("Resposta com erros");
+    }
+  }
 
 }

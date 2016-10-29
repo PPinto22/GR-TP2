@@ -41,7 +41,28 @@ public class Interface implements Comparable<Interface>{
     this.outOctets = outOctets;
   }
 
-  // TODO: Gerar equals e hashcode
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Interface that = (Interface) o;
+
+    if (index != that.index) return false;
+    if (inOctets != that.inOctets) return false;
+    if (outOctets != that.outOctets) return false;
+    return desc != null ? desc.equals(that.desc) : that.desc == null;
+
+  }
+
+  @Override
+  public int hashCode() {
+    int result = index;
+    result = 31 * result + (desc != null ? desc.hashCode() : 0);
+    result = 31 * result + inOctets;
+    result = 31 * result + outOctets;
+    return result;
+  }
 
   public int compareTo(Interface anInterface) {
     if(this.index > anInterface.getIndex())
@@ -49,5 +70,15 @@ public class Interface implements Comparable<Interface>{
     else if(this.index < anInterface.getIndex())
       return -1;
     else return 0;
+  }
+
+  @Override
+  public String toString() {
+    return "Interface{" +
+        "index=" + index +
+        ", desc='" + desc + '\'' +
+        ", inOctets=" + inOctets +
+        ", outOctets=" + outOctets +
+        '}';
   }
 }

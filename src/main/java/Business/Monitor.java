@@ -5,6 +5,7 @@ import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.UdpAddress;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -25,6 +26,10 @@ public class Monitor {
 
   public boolean isConnected(){ return this.con != null; }
 
-
+  public Interfaces getInterfaces() throws IOException {
+    if(this.con != null)
+      return this.con.getInterfaces();
+    else throw new IOException("Endereco do agente nao especificado");
+  }
 
 }
