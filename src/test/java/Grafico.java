@@ -35,16 +35,16 @@ public class Grafico extends JFrame{
   private TimeUnit timeUnits;
   private DataUnit dataUnits;
 
-  public synchronized TimeUnit getTimeUnits() {
+  public TimeUnit getTimeUnits() {
     return timeUnits;
   }
-  public synchronized void setTimeUnits(TimeUnit timeUnits) {
+  public void setTimeUnits(TimeUnit timeUnits) {
     this.timeUnits = timeUnits;
   }
-  public synchronized DataUnit getDataUnits() {
+  public DataUnit getDataUnits() {
     return dataUnits;
   }
-  public synchronized void setDataUnits(DataUnit dataUnits) {
+  public void setDataUnits(DataUnit dataUnits) {
     this.dataUnits = dataUnits;
   }
 
