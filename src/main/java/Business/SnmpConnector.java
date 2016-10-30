@@ -14,6 +14,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 /**con
  * Created by pedro on 26-10-2016.
@@ -112,7 +113,7 @@ public class SnmpConnector {
     if(rp.getErrorStatus() == PDU.noError){
       Time t = parseTime(rp.getVariable(new OID(Objects.SYSUPTIME + ".0")));
       int number = rp.getVariable(new OID(Objects.IFNUMBER + ".0")).toInt();
-      ArrayList<Interface> interfaces = new ArrayList<Interface>(number);
+      TreeMap<String,Interface> interfaces = new TreeMap<>();
       for(int i = 1; i <= number; i++){
         boolean operStatus = rp.getVariable(new OID(Objects.IFOPERSTATUS + "." + i)).toInt() == 1;
         boolean adminStatus = rp.getVariable(new OID(Objects.IFADMINSTATUS + "." + i)).toInt() == 1;
@@ -124,7 +125,7 @@ public class SnmpConnector {
           int outOct = rp.getVariable(new OID(Objects.IFOUTOCTETS + "." + i)).toInt();
 
           Interface iface = new Interface(index,desc,inOct,outOct);
-          interfaces.add(iface);
+          interfaces.put(desc,iface);
         }
       }
       return new Interfaces(t,interfaces);
