@@ -170,7 +170,7 @@ public class Grafico extends JFrame{
     XYPlot plot = chart.getXYPlot();
     if(stats != null) {
       NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
-      xAxis.setRange(-(stats.getMaxp()) * stats.getPollTimeInMinutes(), 0);
+      xAxis.setRange(-(stats.getMaxp()-1) * stats.getPollTimeInMinutes(), 0);
     }
     plot.setRenderer(new XYLineAndShapeRenderer(true,true));
 
