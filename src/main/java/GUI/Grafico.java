@@ -1,3 +1,5 @@
+package GUI;
+
 import Business.IfStats;
 import Business.Monitor;
 import Business.Ponto;
@@ -17,17 +19,22 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 
 import javax.swing.*;
+import java.awt.*;
 import java.sql.Time;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Locale;
 
 /**
  * Created by pedro on 29-10-2016.
  */
 public class Grafico extends JFrame{
-  private JPanel panel1;
   private String title;
   private Monitor m;
+  private int pontos;
+  public static Dimension size = new Dimension(800,480);
 
   public enum TimeUnit {SECOND,MINUTE}
   public enum DataUnit {B,KB,MB,GB}
@@ -47,40 +54,48 @@ public class Grafico extends JFrame{
   public void setDataUnits(DataUnit dataUnits) {
     this.dataUnits = dataUnits;
   }
+  public int getPontos() {
+    return pontos;
+  }
+  public void setPontos(int pontos) {
+    this.pontos = pontos;
+  }
 
-  public Grafico(Monitor m, String title){
+  public Grafico(Monitor m, String title, int pontos){
     this.title = title;
     this.m = m;
     this.timeUnits = TimeUnit.MINUTE;
     this.dataUnits = DataUnit.KB;
+    this.pontos = pontos;
   }
 
   public ChartPanel getPane(){
-    final ChartPanel chartPanel = createChartPanel(m.getIfStats().get(title));
-    chartPanel.setPreferredSize(new java.awt.Dimension(800, 480));
-    chartPanel.setMouseZoomable(true, true);
-    return chartPanel;
+    try {
+      final ChartPanel chartPanel = createChartPanel(m.getIfStats().get(title));
+      chartPanel.setPreferredSize(size);
+      chartPanel.setMouseZoomable(true, false);
+      return chartPanel;
+    }
+    catch (Exception e){
+      return Grafico.getEmptyPane();
+    }
   }
 
-/*  private XYDataset createDataset() {
-    final TimeSeriesCollection dataset = new TimeSeriesCollection();
+  public static ChartPanel getEmptyPane(){
+    String chartTitle = "Sem Coneccao";
+    String xAxisLabel = "Tempo";
+    String yAxisLabel = "Octetos";
 
-    Hour h = new Hour();
-    final TimeSeries s1 = new TimeSeries("Input", Second.class);
-    s1.add(new Second(-30,0,0,1,12,2000), 1.2);
-    s1.add(new Second(-0,1,0,1,12,2000), 3.0);
-    s1.add(new Second(-30,1,0,1,12,2000), 8.0);
+    XYDataset dataset = new XYSeriesCollection();
 
-    final TimeSeries s2 = new TimeSeries("Output", Second.class);
-    s2.add(new Second(-30,0,0,1,12,2000), 0.0);
-    s2.add(new Second(-0,1,0,1,12,2000), 0.0);
-    s2.add(new Second(-30,1,0,1,12,2000), 0.0);
+    JFreeChart chart = ChartFactory.createXYLineChart(chartTitle,xAxisLabel,yAxisLabel,dataset,
+        PlotOrientation.VERTICAL,true,false,false);
 
-    dataset.addSeries(s1);
-    dataset.addSeries(s2);
-
-    return dataset;
-  }*/
+    ChartPanel ret = new ChartPanel(chart);
+    ret.setPreferredSize(size);
+    ret.setMouseZoomable(false);
+    return ret;
+  }
 
   private double getX(Ponto p){
     switch (this.timeUnits){
@@ -137,11 +152,15 @@ public class Grafico extends JFrame{
     final XYSeries out = new XYSeries("Output");
 
     if(stats != null) {
-      for (Ponto p : stats.getPontosIn()) {
-        in.add(this.getX(p),this.getY(p));
-      }
-      for (Ponto p : stats.getPontosOut()) {
-        out.add(this.getX(p),this.getY(p));
+      synchronized (stats){
+        Iterator<Ponto> itIn = stats.getPontosIn().descendingIterator();
+        Iterator<Ponto> itOut = stats.getPontosOut().descendingIterator();
+        for(int i = 0; i<this.pontos && itIn.hasNext() && itOut.hasNext(); i++) {
+          Ponto pIn = itIn.next();
+          Ponto pOut = itOut.next();
+          in.add(this.getX(pIn), this.getY(pIn));
+          out.add(this.getX(pOut), this.getY(pOut));
+        }
       }
     }
 
@@ -161,16 +180,19 @@ public class Grafico extends JFrame{
     JFreeChart chart = ChartFactory.createXYLineChart(chartTitle,xAxisLabel,yAxisLabel,dataset,
         PlotOrientation.VERTICAL,true,false,false);
 
-/*    JFreeChart chart = ChartFactory.createTimeSeriesChart(chartTitle,
-        xAxisLabel, yAxisLabel, dataset, true,true,false);
-
-    DateAxis axis = (DateAxis) plot.getDomainAxis();
-    axis.setDateFormatOverride(new SimpleDateFormat("mm:ss"));*/
-
     XYPlot plot = chart.getXYPlot();
     if(stats != null) {
       NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
-      xAxis.setRange(-(stats.getMaxp()-1) * stats.getPollTimeInMinutes(), 0);
+      switch (this.timeUnits){
+        case SECOND:
+          xAxis.setRange(-(this.pontos-1) * stats.getPollTimeInSeconds(), 0);
+          break;
+        case MINUTE:
+          xAxis.setRange(-(this.pontos-1) * stats.getPollTimeInMinutes(), 0);
+          break;
+      }
+      NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+      yAxis.setNumberFormatOverride(java.text.NumberFormat.getNumberInstance() );
     }
     plot.setRenderer(new XYLineAndShapeRenderer(true,true));
 

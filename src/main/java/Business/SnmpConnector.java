@@ -24,7 +24,7 @@ public class SnmpConnector {
 
   private CommunityTarget com;
   private long timeout = 3000;
-  private int retries = 3;
+  private int retries = 1;
   private int version = SnmpConstants.version2c;
   private int requestID = 0;
 

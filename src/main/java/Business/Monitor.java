@@ -1,5 +1,6 @@
 package Business;
 
+import GUI.MainFrame;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.OctetString;
@@ -20,13 +21,24 @@ public class Monitor {
   public Polling pollThread;
   private Stats stats;
   private int maxPoints;
+  private MainFrame mainFrame;
 
-  public Monitor(){
+  public Monitor(long poll, int maxPoints){
     this.con = null;
-    this.poll = 30000;
+    this.poll = poll;
     this.pollThread = null;
-    this.maxPoints = 20;
+    this.maxPoints = maxPoints;
     this.stats = new Stats(maxPoints,poll);
+    this.mainFrame = null;
+  }
+
+  public Monitor(long poll, int maxPoints, MainFrame mainFrame){
+    this.con = null;
+    this.poll = poll;
+    this.pollThread = null;
+    this.maxPoints = maxPoints;
+    this.stats = new Stats(maxPoints,poll);
+    this.mainFrame = mainFrame;
   }
 
   public int getMaxPoints() {
@@ -46,15 +58,18 @@ public class Monitor {
     this.stats.add(ifaces);
   }
 
-  public void startPolling(){
-    if(this.pollThread == null) {
-      this.pollThread = new Polling(this, this.poll);
-      this.pollThread.start();
+  private void startPolling(){
+    if(this.pollThread != null){
+      this.pollThread.setTerminado(true);
     }
+    this.pollThread = new Polling(this, this.poll, mainFrame);
+    this.pollThread.start();
   }
 
   public void connect(String ip, int port) throws UnknownHostException {
     this.con = new SnmpConnector(ip,port);
+    this.stats = new Stats(maxPoints,poll);
+    this.startPolling();
   }
 
   public boolean isConnected(){ return this.con != null; }

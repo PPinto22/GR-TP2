@@ -25,9 +25,8 @@ public class Teste1 {
     Ponto p4 = new Ponto(t4,7000,-1.5f,2500);
     Ponto p5 = new Ponto(t5,10000,-2.0f,3000);*/
 
-    Monitor m = new Monitor();
+    Monitor m = new Monitor(15000,60);
     m.connect("localhost",5555);
-    m.startPolling();
     while(true){
       Map<String,IfStats> stats = m.getIfStats();
       for(String desc: stats.keySet()){

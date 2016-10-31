@@ -69,7 +69,7 @@ public class IfStats {
     this.poll = poll;
   }
 
-  public void add(Time sysUpTime, Interface iface){
+  public synchronized void add(Time sysUpTime, Interface iface){
     Ponto pIn = new Ponto(sysUpTime, iface.getInOctets(), -1, -1);
     Ponto pOut = new Ponto(sysUpTime, iface.getOutOctets(), -1, -1);
     if(this.in0 == null || this.out0 == null) {
@@ -185,5 +185,9 @@ public class IfStats {
 
   public double getPollTimeInMinutes() {
     return this.poll/1000.0f/60.0f;
+  }
+
+  public double getPollTimeInSeconds() {
+    return this.poll/1000.0f;
   }
 }
