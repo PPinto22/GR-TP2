@@ -183,8 +183,12 @@ public class IfStats {
     return sb.toString();
   }
 
+  public double getPollTimeInHours() {
+    return this.poll/3600000.0f;
+  }
+
   public double getPollTimeInMinutes() {
-    return this.poll/1000.0f/60.0f;
+    return this.poll/60000.0f;
   }
 
   public double getPollTimeInSeconds() {

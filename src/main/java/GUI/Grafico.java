@@ -36,7 +36,7 @@ public class Grafico extends JFrame{
   private int pontos;
   public static Dimension size = new Dimension(800,480);
 
-  public enum TimeUnit {SECOND,MINUTE}
+  public enum TimeUnit {SECOND,MINUTE,HOUR}
   public enum DataUnit {B,KB,MB,GB}
 
   private TimeUnit timeUnits;
@@ -103,6 +103,8 @@ public class Grafico extends JFrame{
         return p.getX();
       case MINUTE:
         return p.getX()/60.0f;
+      case HOUR:
+        return p.getX()/3600.0f;
       default:
         return 0;
     }
@@ -113,6 +115,8 @@ public class Grafico extends JFrame{
         return "min";
       case SECOND:
         return "s";
+      case HOUR:
+        return "h";
       default:
         return "";
     }
@@ -188,6 +192,9 @@ public class Grafico extends JFrame{
           xAxis.setRange(-(this.pontos-1) * stats.getPollTimeInSeconds(), 0);
           break;
         case MINUTE:
+          xAxis.setRange(-(this.pontos-1) * stats.getPollTimeInMinutes(), 0);
+          break;
+        case HOUR:
           xAxis.setRange(-(this.pontos-1) * stats.getPollTimeInMinutes(), 0);
           break;
       }

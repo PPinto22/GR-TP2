@@ -30,6 +30,12 @@ public class Refresher extends Thread {
   public synchronized void setTerminado(boolean terminado){
     this.terminado = terminado;
   }
+  public synchronized Set<String> getInterfaces() {
+    return interfaces;
+  }
+  public synchronized void setInterfaces(Set<String> interfaces) {
+    this.interfaces = interfaces;
+  }
 
   public Refresher(MainFrame mainFrame, JPanel panel, Grafico grafico, long refresh){
     this.mainFrame = mainFrame;

@@ -3,10 +3,10 @@ package GUI;
 import Business.Monitor;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.UnknownHostException;
+import java.util.TreeSet;
 
 /**
  * Created by pedro on 29-10-2016.
@@ -22,6 +22,13 @@ public class MainFrame extends JFrame{
   public JButton conectarButton;
   public JButton padraoButton;
   public JButton aplicarButton;
+  private JRadioButton segundosRadioButton;
+  private JRadioButton minutosRadioButton;
+  private JRadioButton byteRadioButton;
+  private JRadioButton kBRadioButton;
+  private JRadioButton MBRadioButton;
+  private JRadioButton GBRadioButton;
+  private JRadioButton horasRadioButton;
   public Monitor m;
   public Refresher refresher;
   public Grafico grafico;
@@ -34,12 +41,63 @@ public class MainFrame extends JFrame{
     this.cbPolling.addItem("2 minutos");
     this.cbPolling.addItem("5 minutos");
     this.cbPolling.addItem("15 minutos");
-    this.cbPolling.setSelectedItem("30 segundos");
+    this.cbPolling.setSelectedItem("15 segundos");
 
     this.sliderPontos.setSnapToTicks(true);
     this.sliderPontos.setMajorTickSpacing(5);
     this.sliderPontos.setPaintTicks(true);
     this.sliderPontos.setPaintLabels(true);
+
+    this.segundosRadioButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent actionEvent) {
+        deselectAllTimeUnits();
+        segundosRadioButton.setSelected(true);
+      }
+    });
+    this.minutosRadioButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent actionEvent) {
+        deselectAllTimeUnits();
+        minutosRadioButton.setSelected(true);
+      }
+    });
+    this.horasRadioButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent actionEvent) {
+        deselectAllTimeUnits();
+        horasRadioButton.setSelected(true);
+      }
+    });
+
+    this.byteRadioButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent actionEvent) {
+        deselectAllDataUnits();
+        byteRadioButton.setSelected(true);
+      }
+    });
+    this.kBRadioButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent actionEvent) {
+        deselectAllDataUnits();
+        kBRadioButton.setSelected(true);
+      }
+    });
+    this.MBRadioButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent actionEvent) {
+        deselectAllDataUnits();
+        MBRadioButton.setSelected(true);
+      }
+    });
+    this.GBRadioButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent actionEvent) {
+        deselectAllDataUnits();
+        GBRadioButton.setSelected(true);
+      }
+    });
 
     this.cbInterface.addActionListener(new ActionListener() {
       @Override
@@ -52,19 +110,33 @@ public class MainFrame extends JFrame{
     this.aplicarButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent actionEvent) {
-        // TODO
+        m.setPoll(getPoll());
+        if(grafico != null){
+          grafico.setTimeUnits(getTimeUnit());
+          grafico.setDataUnits(getDataUnit());
+          grafico.setPontos(sliderPontos.getValue());
+        }
+        refresher.refresh(false);
       }
     });
 
     this.padraoButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent actionEvent) {
-        cbPolling.setSelectedItem("30 segundos");
+        cbPolling.setSelectedItem("15 segundos");
         sliderPontos.setValue(25);
+
+        segundosRadioButton.setSelected(false);
+        minutosRadioButton.setSelected(true);
+        horasRadioButton.setSelected(false);
+
+        byteRadioButton.setSelected(false);
+        kBRadioButton.setSelected(true);
+        MBRadioButton.setSelected(false);
+        GBRadioButton.setSelected(false);
       }
     });
 
-    // TODO: Tratar de enderecos errados
     this.conectarButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent actionEvent) {
@@ -87,7 +159,7 @@ public class MainFrame extends JFrame{
   public MainFrame() throws InterruptedException, UnknownHostException {
     this.initMyComponents();
 
-    m = new Monitor(5000,this.sliderPontos.getMaximum(),this);
+    m = new Monitor(getPoll(),this.sliderPontos.getMaximum(),this);
     m.connect(ipTextField.getText(),Integer.parseInt(portaTextField.getText()));
 
     this.grafico = null;
@@ -121,6 +193,41 @@ public class MainFrame extends JFrame{
     return 1000;
   }
 
+  public Grafico.TimeUnit getTimeUnit(){
+    if(this.segundosRadioButton.isSelected())
+      return Grafico.TimeUnit.SECOND;
+    else if(this.minutosRadioButton.isSelected())
+      return Grafico.TimeUnit.MINUTE;
+    else if(this.horasRadioButton.isSelected())
+      return Grafico.TimeUnit.HOUR;
+    return null;
+  }
+
+  public Grafico.DataUnit getDataUnit(){
+    if(this.byteRadioButton.isSelected())
+      return Grafico.DataUnit.B;
+    else if(this.kBRadioButton.isSelected())
+      return Grafico.DataUnit.KB;
+    else if(this.MBRadioButton.isSelected())
+      return Grafico.DataUnit.MB;
+    else if(this.GBRadioButton.isSelected())
+      return Grafico.DataUnit.GB;
+    return null;
+  }
+
+  private void deselectAllTimeUnits(){
+    this.segundosRadioButton.setSelected(false);
+    this.minutosRadioButton.setSelected(false);
+    this.horasRadioButton.setSelected(false);
+  }
+
+  private void deselectAllDataUnits(){
+    this.byteRadioButton.setSelected(false);
+    this.kBRadioButton.setSelected(false);
+    this.MBRadioButton.setSelected(false);
+    this.GBRadioButton.setSelected(false);
+  }
+
   public void setGrafico(Grafico g) {
     this.grafico = g;
     this.refresher.setGrafico(this.grafico);
@@ -133,12 +240,12 @@ public class MainFrame extends JFrame{
     synchronized (cbInterface){
       cbInterface.removeAllItems();
     }
+    this.refresher.setInterfaces(new TreeSet<String>());
     this.setGrafico(null);
 
   }
 
-  // TODO: Anchor
-  // TODO: Opcoes para mudar unidades dos eixos
+  // TODO: Redimensionar componentes com a janela
   public static void main(String[] args) throws InterruptedException, UnknownHostException {
     JFrame frame = new JFrame("Monitor");
     frame.setContentPane(new MainFrame().rootPanel);
