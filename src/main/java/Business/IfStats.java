@@ -102,8 +102,13 @@ public class IfStats {
         postIn.setY(postIn.getTotalOct() - pIn.getTotalOct());
         postOut.setY(postOut.getTotalOct() - pOut.getTotalOct());
       }
-      this.pontosIn.add(pIn);
-      this.pontosOut.add(pOut);
+
+      // FIXME Solucao provisoria para quando o contador da uma volta completa
+      if(pIn.getY() >= 0)
+        this.pontosIn.add(pIn);
+      if(pOut.getY() >= 0)
+        this.pontosOut.add(pOut);
+
       if(this.pontosIn.size() > this.maxp){
         this.pontosIn.remove(this.pontosIn.first());
       }

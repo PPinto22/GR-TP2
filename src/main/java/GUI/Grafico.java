@@ -195,7 +195,7 @@ public class Grafico extends JFrame{
           xAxis.setRange(-(this.pontos-1) * stats.getPollTimeInMinutes(), 0);
           break;
         case HOUR:
-          xAxis.setRange(-(this.pontos-1) * stats.getPollTimeInMinutes(), 0);
+          xAxis.setRange(-(this.pontos-1) * stats.getPollTimeInHours(), 0);
           break;
       }
       NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();

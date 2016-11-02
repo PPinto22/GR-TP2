@@ -41,7 +41,10 @@ public class MainFrame extends JFrame{
     this.cbPolling.addItem("2 minutos");
     this.cbPolling.addItem("5 minutos");
     this.cbPolling.addItem("15 minutos");
-    this.cbPolling.setSelectedItem("15 segundos");
+    this.cbPolling.addItem("30 minutos");
+    this.cbPolling.addItem("1 hora");
+    this.cbPolling.setMaximumRowCount(10);
+    this.cbPolling.setSelectedItem("30 segundos");
 
     this.sliderPontos.setSnapToTicks(true);
     this.sliderPontos.setMajorTickSpacing(5);
@@ -123,7 +126,7 @@ public class MainFrame extends JFrame{
     this.padraoButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent actionEvent) {
-        cbPolling.setSelectedItem("15 segundos");
+        cbPolling.setSelectedItem("30 segundos");
         sliderPontos.setValue(25);
 
         segundosRadioButton.setSelected(false);
@@ -144,13 +147,9 @@ public class MainFrame extends JFrame{
           m.connect(ipTextField.getText(),Integer.parseInt(portaTextField.getText()));
         } catch (UnknownHostException e) {
           JOptionPane.showMessageDialog(MainFrame.this, "Endereco invalido");
-          ipTextField.setText("127.0.0.1");
-          portaTextField.setText("5555");
         }
         catch (NumberFormatException e){
           JOptionPane.showMessageDialog(MainFrame.this, "Porta invalida");
-          ipTextField.setText("127.0.0.1");
-          portaTextField.setText("5555");
         }
       }
     });
@@ -176,19 +175,23 @@ public class MainFrame extends JFrame{
   public long getPoll(){
     switch ((String)this.cbPolling.getSelectedItem()){
       case "5 segundos":
-        return 1000*5;
+        return 5000;
       case "15 segundos":
-        return 1000*15;
+        return 15000;
       case "30 segundos":
-        return 1000*30;
+        return 30000;
       case "1 minuto":
-        return 1000*60;
+        return 60000;
       case "2 minutos":
-        return 1000*120;
+        return 120000;
       case "5 minutos":
-        return 1000*300;
+        return 300000;
       case "15 minutos":
-        return 1000*900;
+        return 900000;
+      case "30 minutos":
+        return 1800000;
+      case "1 hora":
+        return 3600000;
     }
     return 1000;
   }
