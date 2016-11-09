@@ -11,6 +11,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.data.time.*;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
@@ -73,7 +74,7 @@ public class Grafico extends JFrame{
     try {
       final ChartPanel chartPanel = createChartPanel(m.getIfStats().get(title));
       chartPanel.setPreferredSize(size);
-      chartPanel.setMouseZoomable(true, false);
+      chartPanel.setMouseZoomable(false, false);
       return chartPanel;
     }
     catch (Exception e){
@@ -201,7 +202,8 @@ public class Grafico extends JFrame{
       NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
       yAxis.setNumberFormatOverride(java.text.NumberFormat.getNumberInstance() );
     }
-    plot.setRenderer(new XYLineAndShapeRenderer(true,true));
+    //plot.setRenderer(new XYLineAndShapeRenderer(true,true));
+    plot.setRenderer(new XYSplineRenderer());
 
     return new ChartPanel(chart);
   }

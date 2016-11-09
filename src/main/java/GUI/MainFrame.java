@@ -44,7 +44,7 @@ public class MainFrame extends JFrame{
     this.cbPolling.addItem("30 minutos");
     this.cbPolling.addItem("1 hora");
     this.cbPolling.setMaximumRowCount(10);
-    this.cbPolling.setSelectedItem("30 segundos");
+    this.cbPolling.setSelectedItem("15 segundos");
 
     this.sliderPontos.setSnapToTicks(true);
     this.sliderPontos.setMajorTickSpacing(5);
@@ -126,8 +126,8 @@ public class MainFrame extends JFrame{
     this.padraoButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent actionEvent) {
-        cbPolling.setSelectedItem("30 segundos");
-        sliderPontos.setValue(25);
+        cbPolling.setSelectedItem("15 segundos");
+        sliderPontos.setValue(30);
 
         segundosRadioButton.setSelected(false);
         minutosRadioButton.setSelected(true);
@@ -248,11 +248,9 @@ public class MainFrame extends JFrame{
 
   }
 
-  // TODO: Redimensionar componentes com a janela
   public static void main(String[] args) throws InterruptedException, UnknownHostException {
     JFrame frame = new JFrame("Monitor");
     frame.setContentPane(new MainFrame().rootPanel);
-    //frame.setResizable(false);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.pack();
     frame.setVisible(true);
